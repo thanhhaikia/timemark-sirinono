@@ -20,15 +20,18 @@ public final class ShareProvider extends ContentProvider {
         return new File(context.getCacheDir(), "share");
     }
 
+    /** file is dir()/<token>/<name>; the token makes every share a distinct URI. */
     static Uri uriFor(File file) {
-        return new Uri.Builder().scheme("content").authority(AUTHORITY).appendPath(file.getName()).build();
+        return new Uri.Builder().scheme("content").authority(AUTHORITY)
+                .appendPath(file.getParentFile().getName()).appendPath(file.getName()).build();
     }
 
     private File fileFor(Uri uri) throws FileNotFoundException {
-        String name = uri.getLastPathSegment();
-        if (name == null || name.contains("/") || name.startsWith(".")) throw new FileNotFoundException();
-        File f = new File(dir(getContext()), name);
-        if (!f.isFile()) throw new FileNotFoundException(name);
+        java.util.List<String> seg = uri.getPathSegments();
+        if (seg.size() != 2) throw new FileNotFoundException();
+        for (String s : seg) if (s.isEmpty() || s.contains("/") || s.startsWith(".")) throw new FileNotFoundException();
+        File f = new File(new File(dir(getContext()), seg.get(0)), seg.get(1));
+        if (!f.isFile()) throw new FileNotFoundException(seg.get(1));
         return f;
     }
 

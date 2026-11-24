@@ -20,6 +20,7 @@ import java.io.OutputStream;
 /** window.TimemarkNative: saves watermarked JPEGs to the phone's gallery and shares them. */
 final class PhotoBridge {
     private static final String ALBUM = "Timemark_Sirinono";
+    private static final long SHARE_KEEP_MS = 24L * 60 * 60 * 1000;
     private final MainActivity activity;
 
     PhotoBridge(MainActivity activity) {
@@ -64,15 +65,23 @@ final class PhotoBridge {
     }
 
     private Uri shareCopy(byte[] jpeg, String name) throws IOException {
-        File dir = ShareProvider.dir(activity);
-        File[] old = dir.listFiles();
-        if (old != null) for (File f : old) f.delete();
-        if (!dir.isDirectory() && !dir.mkdirs()) throw new IOException("Cannot create " + dir);
+        File root = ShareProvider.dir(activity);
+        File[] old = root.listFiles();
+        long cutoff = System.currentTimeMillis() - SHARE_KEEP_MS;
+        if (old != null) for (File d : old) if (d.lastModified() < cutoff) deleteTree(d);
+        File dir = new File(root, java.util.UUID.randomUUID().toString());
+        if (!dir.mkdirs()) throw new IOException("Cannot create " + dir);
         File file = new File(dir, name);
         try (FileOutputStream out = new FileOutputStream(file)) {
             out.write(jpeg);
         }
         return ShareProvider.uriFor(file);
+    }
+
+    private static void deleteTree(File f) {
+        File[] kids = f.listFiles();
+        if (kids != null) for (File k : kids) deleteTree(k);
+        f.delete();
     }
 
     private static File unique(File dir, String name) {
