@@ -272,7 +272,7 @@ function simple(ctx, info, s, u, maxW) {
   const mainF = font(600, 3.4 * u);
   const subF = font(500, 2.6 * u);
   const main = wrap(ctx, [[info.date, info.time].filter(Boolean).join(' '), info.address].filter(Boolean).join('  ·  '), mainF, maxW);
-  const sub = wrap(ctx, [info.coords, info.weather, info.author, info.note, info.code ? `Mã ${info.code}` : null].filter(Boolean).join('  ·  '), subF, maxW);
+  const sub = wrap(ctx, [info.coords, info.weather, info.project, info.author, info.note, info.code ? `Mã ${info.code}` : null].filter(Boolean).join('  ·  '), subF, maxW);
   const lh1 = 3.4 * u * 1.35;
   const lh2 = 2.6 * u * 1.4;
   const h = main.length * lh1 + sub.length * lh2;
@@ -302,7 +302,8 @@ function simple(ctx, info, s, u, maxW) {
 function stamp(ctx, info, s, u, maxW, data) {
   const d = data.date;
   const p = (n) => String(n).padStart(2, '0');
-  const text = `'${p(d.getFullYear() % 100)} ${p(d.getMonth() + 1)} ${p(d.getDate())}  ${p(d.getHours())}:${p(d.getMinutes())}`;
+  const day = info.date ? `'${p(d.getFullYear() % 100)} ${p(d.getMonth() + 1)} ${p(d.getDate())}` : '';
+  const text = [day, info.time].filter(Boolean).join('  ');
   const f = font(700, 5.2 * u, MONO);
   ctx.font = f;
   const w = Math.min(maxW, ctx.measureText(text).width);
