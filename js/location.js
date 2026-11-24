@@ -7,6 +7,7 @@ const ADDRESS_CACHE = 'timemark_sirinono_addr_v1';
 const GEOCODE_MIN_MOVE_M = 40;
 const GEOCODE_MIN_INTERVAL_MS = 8000;
 const WEATHER_TTL_MS = 15 * 60 * 1000;
+const ADDRESS_STALE_M = 150;
 
 export function distanceM(a, b) {
   const R = 6371000;
@@ -41,6 +42,8 @@ export function createLocation(onChange) {
   let geocoding = false;
   let weatherAt = 0;
   let weatherPos = null;
+  let addressPos = null;
+  let weatherTimer = null;
 
   const emit = () => onChange({ ...state });
 
@@ -53,14 +56,14 @@ export function createLocation(onChange) {
     const cached = readCache()[key];
     lastGeo = here;
     lastGeoAt = Date.now();
-    if (cached && !force) { state.address = cached; emit(); return; }
+    if (cached && !force) { state.address = cached; addressPos = here; emit(); return; }
     geocoding = true;
     try {
       const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&zoom=18&addressdetails=1&accept-language=vi&lat=${here.lat}&lon=${here.lon}`;
       const res = await fetch(url, { headers: { Accept: 'application/json' } });
       if (res.ok) {
         const addr = shortAddress(await res.json());
-        if (addr) { state.address = addr; writeCache(key, addr); emit(); }
+        if (addr) { state.address = addr; addressPos = here; writeCache(key, addr); emit(); }
       }
     } catch { /* offline: keep the previous address */ }
     geocoding = false;
@@ -93,6 +96,10 @@ export function createLocation(onChange) {
     state.lon = c.longitude;
     state.alt = c.altitude ?? NaN;
     state.acc = c.accuracy ?? NaN;
+    if (addressPos && distanceM(addressPos, { lat: state.lat, lon: state.lon }) > ADDRESS_STALE_M) {
+      state.address = '';
+      addressPos = null;
+    }
     emit();
     geocode();
     weather();
@@ -110,11 +117,14 @@ export function createLocation(onChange) {
     state.status = 'locating';
     emit();
     watchId = navigator.geolocation.watchPosition(onPos, onErr, { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 });
+    weatherTimer = setInterval(() => weather(), 60 * 1000);
   }
 
   function stop() {
     if (watchId !== null) navigator.geolocation.clearWatch(watchId);
     watchId = null;
+    clearInterval(weatherTimer);
+    weatherTimer = null;
   }
 
   function refresh() {
