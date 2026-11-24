@@ -40,7 +40,7 @@ final class PhotoBridge {
     @JavascriptInterface
     public String sharePhoto(String base64, String name) {
         try {
-            Uri uri = store(Base64.decode(base64, Base64.DEFAULT), safeName(name));
+            Uri uri = shareCopy(Base64.decode(base64, Base64.DEFAULT), safeName(name));
             Intent send = new Intent(Intent.ACTION_SEND)
                     .setType("image/jpeg")
                     .putExtra(Intent.EXTRA_STREAM, uri)
@@ -61,6 +61,25 @@ final class PhotoBridge {
         String n = name == null ? "" : name.replaceAll("[^A-Za-z0-9._-]", "_");
         if (n.isEmpty()) n = "Timemark_Sirinono_" + System.currentTimeMillis();
         return n.endsWith(".jpg") ? n : n + ".jpg";
+    }
+
+    private Uri shareCopy(byte[] jpeg, String name) throws IOException {
+        File dir = ShareProvider.dir(activity);
+        File[] old = dir.listFiles();
+        if (old != null) for (File f : old) f.delete();
+        if (!dir.isDirectory() && !dir.mkdirs()) throw new IOException("Cannot create " + dir);
+        File file = new File(dir, name);
+        try (FileOutputStream out = new FileOutputStream(file)) {
+            out.write(jpeg);
+        }
+        return ShareProvider.uriFor(file);
+    }
+
+    private static File unique(File dir, String name) {
+        File file = new File(dir, name);
+        String base = name.substring(0, name.length() - 4);
+        for (int i = 1; file.exists(); i++) file = new File(dir, base + "_" + i + ".jpg");
+        return file;
     }
 
     private Uri store(byte[] jpeg, String name) throws IOException {
@@ -93,13 +112,13 @@ final class PhotoBridge {
         }
         File dir = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES), ALBUM);
         if (!dir.isDirectory() && !dir.mkdirs()) throw new IOException("Cannot create " + dir);
-        File file = new File(dir, name);
+        File file = unique(dir, name);
         try (FileOutputStream out = new FileOutputStream(file)) {
             out.write(jpeg);
         }
         ContentValues values = new ContentValues();
         values.put(MediaStore.Images.Media.DATA, file.getAbsolutePath());
-        values.put(MediaStore.Images.Media.DISPLAY_NAME, name);
+        values.put(MediaStore.Images.Media.DISPLAY_NAME, file.getName());
         values.put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg");
         Uri uri = resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
         MediaScannerConnection.scanFile(activity, new String[] {file.getAbsolutePath()}, new String[] {"image/jpeg"}, null);
