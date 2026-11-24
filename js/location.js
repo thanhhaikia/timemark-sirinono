@@ -99,6 +99,7 @@ export function createLocation(onChange) {
     if (addressPos && distanceM(addressPos, { lat: state.lat, lon: state.lon }) > ADDRESS_STALE_M) {
       state.address = '';
       addressPos = null;
+      lastGeo = null;
     }
     emit();
     geocode();
@@ -117,7 +118,7 @@ export function createLocation(onChange) {
     state.status = 'locating';
     emit();
     watchId = navigator.geolocation.watchPosition(onPos, onErr, { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 });
-    weatherTimer = setInterval(() => weather(), 60 * 1000);
+    weatherTimer = setInterval(() => { geocode(); weather(); }, 60 * 1000);
   }
 
   function stop() {
