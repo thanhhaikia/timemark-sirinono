@@ -1,0 +1,13 @@
+{
+  "name": "timemark-sirinono",
+  "version": "1.0.0",
+  "description": "Timemark_Sirinono — máy ảnh đóng dấu thời gian, địa chỉ và GPS lên ảnh. Static PWA + Android WebView wrapper.",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/serve.mjs 8080",
+    "test": "node --test tests/*.test.mjs"
+  },
+  "engines": { "node": ">=18" },
+  "license": "MIT"
+}
