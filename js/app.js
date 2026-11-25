@@ -194,7 +194,9 @@ function drawOverlay() {
     }
     ctx.stroke();
   }
-  drawWatermark(ctx, view.w, view.h, captureData(), settings);
+  const data = captureData();
+  if (!data.address && loc.status !== 'ok') data.address = loc.status === 'error' ? loc.error : 'Đang lấy vị trí…';
+  drawWatermark(ctx, view.w, view.h, data, settings);
 }
 setInterval(() => { if (!document.hidden) drawOverlay(); }, 1000);
 

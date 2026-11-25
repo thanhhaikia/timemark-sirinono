@@ -66,7 +66,8 @@ test('buildInfo respects show toggles and custom address', () => {
   assert.equal(info.weather, '31°C Ít mây');
   assert.equal(info.altitude, null);
   assert.equal(info.author, null);
-  assert.equal(info.brand, 'Timemark_Sirinono');
+  assert.equal(info.brand, null);
+  assert.equal(info.code, null);
   s.show.coords = false;
   s.show.altitude = true;
   s.customAddress = true;
@@ -89,4 +90,20 @@ test('settings merge ignores unknown keys and wrong types', () => {
   assert.equal(m.show.coords, false);
   assert.equal(m.show.date, true);
   assert.deepEqual(merge(defaults(), null), defaults());
+});
+
+test('brand and photo code are hidden by default, also for v1 saved settings', () => {
+  const store = {};
+  globalThis.localStorage = { getItem: (k) => store[k] ?? null, setItem: (k, v) => { store[k] = v; } };
+  return import('../js/settings.js').then(({ load, defaults }) => {
+    assert.equal(defaults().show.brand, false);
+    assert.equal(defaults().show.code, false);
+    store.timemark_sirinono_settings_v1 = JSON.stringify({ template: 'work', show: { brand: true, code: true, coords: true } });
+    const s = load();
+    assert.equal(s.template, 'work');
+    assert.equal(s.show.brand, false);
+    assert.equal(s.show.code, false);
+    store.timemark_sirinono_settings_v1 = JSON.stringify({ ...s, show: { ...s.show, brand: true } });
+    assert.equal(load().show.brand, true);
+  });
 });

@@ -44,6 +44,7 @@ export function createLocation(onChange) {
   let weatherPos = null;
   let addressPos = null;
   let weatherTimer = null;
+  let highAccuracy = true;
 
   const emit = () => onChange({ ...state });
 
@@ -107,17 +108,28 @@ export function createLocation(onChange) {
   }
 
   function onErr(e) {
+    if (e.code !== 1 && highAccuracy) {
+      highAccuracy = false;
+      watch();
+      return;
+    }
+    if (state.status === 'ok') return;
     state.status = 'error';
-    state.error = e.code === 1 ? 'Chưa cho phép truy cập vị trí' : e.code === 3 ? 'Hết thời gian chờ GPS' : 'Không lấy được vị trí';
+    state.error = e.code === 1 ? 'Chưa cho phép vị trí (Cài đặt › Quyền riêng tư › Dịch vụ định vị)' : e.code === 3 ? 'Hết thời gian chờ GPS' : 'Không lấy được vị trí';
     emit();
+  }
+
+  function watch() {
+    if (watchId !== null) navigator.geolocation.clearWatch(watchId);
+    watchId = navigator.geolocation.watchPosition(onPos, onErr, { enableHighAccuracy: highAccuracy, maximumAge: 5000, timeout: 20000 });
   }
 
   function start() {
     if (!('geolocation' in navigator)) { state.status = 'error'; state.error = 'Thiết bị không hỗ trợ GPS'; emit(); return; }
     stop();
-    state.status = 'locating';
-    emit();
-    watchId = navigator.geolocation.watchPosition(onPos, onErr, { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 });
+    if (state.status !== 'ok') { state.status = 'locating'; emit(); }
+    highAccuracy = true;
+    watch();
     weatherTimer = setInterval(() => { geocode(); weather(); }, 60 * 1000);
   }
 

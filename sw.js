@@ -1,5 +1,5 @@
 // Network-first service worker: always fresh when online, still opens offline.
-const CACHE = 'timemark-sirinono-v2';
+const CACHE = 'timemark-sirinono-v3';
 const SHELL = [
   './', 'index.html', 'manifest.json', 'css/app.css',
   'js/app.js', 'js/format.js', 'js/watermark.js', 'js/settings.js', 'js/location.js', 'js/gallery.js', 'js/native.js',
