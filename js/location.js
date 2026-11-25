@@ -64,7 +64,10 @@ export function createLocation(onChange) {
       const res = await fetch(url, { headers: { Accept: 'application/json' } });
       if (res.ok) {
         const addr = shortAddress(await res.json());
-        if (addr) { state.address = addr; addressPos = here; writeCache(key, addr); emit(); }
+        if (addr) {
+          writeCache(key, addr);
+          if (state.lat === here.lat && state.lon === here.lon) { state.address = addr; addressPos = here; emit(); }
+        }
       }
     } catch { /* offline: keep the previous address */ }
     geocoding = false;
