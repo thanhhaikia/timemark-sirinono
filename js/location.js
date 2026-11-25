@@ -113,7 +113,13 @@ export function createLocation(onChange) {
       watch();
       return;
     }
-    if (state.status === 'ok') return;
+    if (state.status === 'ok' && e.code !== 1) return;
+    if (e.code === 1) {
+      state.lat = state.lon = state.alt = state.acc = NaN;
+      state.address = '';
+      addressPos = null;
+      lastGeo = null;
+    }
     state.status = 'error';
     state.error = e.code === 1 ? 'Chưa cho phép vị trí (Cài đặt › Quyền riêng tư › Dịch vụ định vị)' : e.code === 3 ? 'Hết thời gian chờ GPS' : 'Không lấy được vị trí';
     emit();
