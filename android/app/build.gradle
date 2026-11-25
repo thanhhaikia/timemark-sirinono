@@ -1,0 +1,56 @@
+plugins {
+    id "com.android.application"
+}
+
+// The web app in the repository root is the single source: it is copied into the APK as assets.
+def webAssetsDir = layout.buildDirectory.dir("generated/webAssets")
+def copyWebAssets = tasks.register("copyWebAssets", Sync) {
+    from(rootProject.file("..")) {
+        include "index.html", "manifest.json", "css/**", "js/**", "icons/**"
+    }
+    into webAssetsDir.map { it.dir("www") }
+}
+
+def keystoreFile = rootProject.file("keystore.properties")
+def keystore = new Properties()
+if (keystoreFile.exists()) keystoreFile.withInputStream { keystore.load(it) }
+
+android {
+    namespace "io.github.thanhhaikia.timemarksirinono"
+    compileSdk 34
+
+    defaultConfig {
+        applicationId "io.github.thanhhaikia.timemarksirinono"
+        minSdk 24
+        targetSdk 34
+        versionCode 1
+        versionName "1.0.0"
+    }
+
+    signingConfigs {
+        if (keystoreFile.exists()) {
+            release {
+                storeFile rootProject.file(keystore["storeFile"])
+                storePassword keystore["storePassword"]
+                keyAlias keystore["keyAlias"]
+                keyPassword keystore["keyPassword"]
+            }
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            if (keystoreFile.exists()) signingConfig signingConfigs.release
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    sourceSets.main.assets.srcDir(webAssetsDir)
+}
+
+tasks.named("preBuild") { dependsOn copyWebAssets }
