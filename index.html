@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+  <meta name="theme-color" content="#0b0f17">
+  <meta name="description" content="Timemark_Sirinono – máy ảnh đóng dấu thời gian, ngày, địa chỉ và tọa độ GPS lên ảnh.">
+  <title>Timemark_Sirinono</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <symbol id="i-flash" viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></symbol>
+    <symbol id="i-timer" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2.5 2.5M9 2h6"/></symbol>
+    <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></symbol>
+    <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+    <symbol id="i-flip" viewBox="0 0 24 24"><path d="M4 12a8 8 0 0 1 14-5.3L20 9M20 4v5h-5M20 12a8 8 0 0 1-14 5.3L4 15M4 20v-5h5"/></symbol>
+    <symbol id="i-layers" viewBox="0 0 24 24"><path d="m12 3 9 5-9 5-9-5z"/><path d="m3 13 9 5 9-5"/></symbol>
+    <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="m14 6 4 4"/></symbol>
+    <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="10" r="2"/><path d="m21 17-5-5-9 8"/></symbol>
+    <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 22s7-6.3 7-12a7 7 0 0 0-14 0c0 5.7 7 12 7 12z"/><circle cx="12" cy="10" r="2.5"/></symbol>
+    <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+    <symbol id="i-save" viewBox="0 0 24 24"><path d="M12 3v12M7 10l5 5 5-5M4 19h16"/></symbol>
+    <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"/></symbol>
+    <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></symbol>
+    <symbol id="i-refresh" viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7L20 8.5M20 3v5.5h-5.5"/></symbol>
+  </svg>
+
+  <div id="app">
+    <header class="topbar">
+      <button class="icon-btn" id="btnTorch" hidden aria-label="Đèn flash"><svg><use href="#i-flash"/></svg></button>
+      <button class="icon-btn" id="btnTimer" aria-label="Hẹn giờ"><svg><use href="#i-timer"/></svg><span class="badge" id="timerBadge" hidden></span></button>
+      <button class="icon-btn" id="btnGrid" aria-label="Lưới"><svg><use href="#i-grid"/></svg></button>
+      <button class="gps-pill" id="gpsPill"><svg><use href="#i-pin"/></svg><span id="gpsText">Đang lấy vị trí…</span></button>
+      <button class="icon-btn" id="btnSettings" aria-label="Cài đặt"><svg><use href="#i-gear"/></svg></button>
+    </header>
+
+    <main id="stage">
+      <video id="video" playsinline muted autoplay></video>
+      <canvas id="overlay"></canvas>
+      <div id="countdown" hidden></div>
+      <div id="flashFx"></div>
+      <div id="camMsg" hidden>
+        <p id="camMsgText">Đang mở camera…</p>
+        <button class="btn" id="btnRetryCam">Thử lại</button>
+      </div>
+    </main>
+
+    <div class="zoom-row" id="zoomRow" hidden>
+      <span>1×</span><input type="range" id="zoom" min="1" max="5" step="0.1" value="1" aria-label="Thu phóng"><span id="zoomVal">1.0×</span>
+    </div>
+
+    <nav class="chips">
+      <button class="chip" id="btnTemplates"><svg><use href="#i-layers"/></svg>Mẫu</button>
+      <button class="chip" id="btnEdit"><svg><use href="#i-edit"/></svg>Thông tin</button>
+      <button class="chip" id="btnImport"><svg><use href="#i-image"/></svg>Nhập ảnh</button>
+    </nav>
+
+    <footer class="shutter-row">
+      <button class="thumb-btn" id="btnGallery" aria-label="Thư viện"><img id="lastThumb" alt=""></button>
+      <button class="shutter" id="btnShutter" aria-label="Chụp ảnh"><span></span></button>
+      <button class="icon-btn big" id="btnFlip" aria-label="Đổi camera"><svg><use href="#i-flip"/></svg></button>
+    </footer>
+  </div>
+
+  <input type="file" id="fileInput" accept="image/*" hidden>
+
+  <div class="backdrop" id="backdrop" hidden></div>
+
+  <section class="sheet" id="sheetTemplates" hidden>
+    <div class="sheet-head"><h2>Mẫu watermark</h2><button class="icon-btn" data-close><svg><use href="#i-close"/></svg></button></div>
+    <div class="tpl-list" id="tplList"></div>
+    <h3>Vị trí</h3>
+    <div class="seg" id="posSeg"></div>
+    <h3>Cỡ chữ <span id="sizeVal"></span></h3>
+    <input type="range" id="sizeRange" min="0.6" max="1.6" step="0.05">
+    <h3>Màu nhấn</h3>
+    <div class="swatches" id="swatches"></div>
+  </section>
+
+  <section class="sheet" id="sheetEdit" hidden>
+    <div class="sheet-head"><h2>Thông tin trên ảnh</h2><button class="icon-btn" data-close><svg><use href="#i-close"/></svg></button></div>
+    <div class="loc-box">
+      <div><b>Vị trí hiện tại</b><p id="locDetail">—</p></div>
+      <button class="icon-btn" id="btnRefreshLoc" aria-label="Làm mới vị trí"><svg><use href="#i-refresh"/></svg></button>
+    </div>
+    <label class="switch-row"><span>Nhập địa chỉ thủ công</span><input type="checkbox" id="customAddress"></label>
+    <textarea id="customAddressText" rows="2" placeholder="Ví dụ: Công trình ABC, 12 Lê Lợi, Quận 1, TP.HCM"></textarea>
+    <label class="field">Dự án / Công trình<input id="project" maxlength="80" placeholder="Tên dự án"></label>
+    <label class="field">Người chụp<input id="author" maxlength="60" placeholder="Họ và tên"></label>
+    <label class="field">Ghi chú<textarea id="note" rows="2" maxlength="200" placeholder="Nội dung công việc, tình trạng…"></textarea></label>
+    <label class="field">Nhãn thương hiệu<input id="brand" maxlength="40"></label>
+    <h3>Hiển thị trên ảnh</h3>
+    <div class="toggles" id="showToggles"></div>
+  </section>
+
+  <section class="sheet" id="sheetSettings" hidden>
+    <div class="sheet-head"><h2>Cài đặt</h2><button class="icon-btn" data-close><svg><use href="#i-close"/></svg></button></div>
+    <label class="field">Định dạng ngày
+      <select id="dateFormat">
+        <option value="dd/MM/yyyy">24/11/2026</option>
+        <option value="dd-MM-yyyy">24-11-2026</option>
+        <option value="yyyy-MM-dd">2026-11-24</option>
+        <option value="MM/dd/yyyy">11/24/2026</option>
+      </select>
+    </label>
+    <label class="field">Tọa độ
+      <select id="coordFormat">
+        <option value="dec">Thập phân (10.776889, 106.700806)</option>
+        <option value="dms">Độ phút giây (10°46'36.8"N)</option>
+      </select>
+    </label>
+    <label class="switch-row"><span>Giờ 24h</span><input type="checkbox" id="h24"></label>
+    <label class="switch-row"><span>Hiện giây</span><input type="checkbox" id="seconds"></label>
+    <label class="switch-row"><span id="autoSaveLabel">Tự động lưu ảnh vào máy</span><input type="checkbox" id="autoSave"></label>
+    <label class="switch-row"><span>Âm thanh chụp</span><input type="checkbox" id="shutterSound"></label>
+    <label class="switch-row"><span>Lật ảnh camera trước như gương</span><input type="checkbox" id="mirrorFront"></label>
+    <label class="field">Chất lượng ảnh
+      <select id="quality">
+        <option value="0.8">Tiết kiệm (80%)</option>
+        <option value="0.92">Cao (92%)</option>
+        <option value="1">Tối đa (100%)</option>
+      </select>
+    </label>
+    <button class="btn danger wide" id="btnClearAll">Xóa toàn bộ ảnh trong ứng dụng</button>
+    <p class="about">Timemark_Sirinono 1.0.0 · Địa chỉ © OpenStreetMap, thời tiết © Open-Meteo. Thời gian lấy từ đồng hồ của máy.</p>
+  </section>
+
+  <section class="sheet" id="sheetImport" hidden>
+    <div class="sheet-head"><h2>Đóng dấu ảnh có sẵn</h2><button class="icon-btn" data-close><svg><use href="#i-close"/></svg></button></div>
+    <p class="muted" id="importInfo"></p>
+    <button class="btn wide" id="btnImportNow">Dùng thời gian &amp; vị trí hiện tại</button>
+    <button class="btn wide ghost" id="btnImportFile">Dùng thời gian của tệp ảnh</button>
+  </section>
+
+  <section class="screen" id="galleryScreen" hidden>
+    <header class="screen-head">
+      <button class="icon-btn" data-close aria-label="Quay lại"><svg><use href="#i-back"/></svg></button>
+      <h2>Ảnh đã chụp <span id="galleryCount"></span></h2>
+    </header>
+    <div class="grid" id="galleryGrid"></div>
+    <p class="empty" id="galleryEmpty" hidden>Chưa có ảnh nào. Hãy chụp ảnh đầu tiên!</p>
+  </section>
+
+  <section class="screen" id="viewerScreen" hidden>
+    <header class="screen-head">
+      <button class="icon-btn" data-close aria-label="Quay lại"><svg><use href="#i-back"/></svg></button>
+      <h2 id="viewerTitle"></h2>
+    </header>
+    <div class="viewer-img"><img id="viewerImg" alt=""></div>
+    <p class="viewer-meta" id="viewerMeta"></p>
+    <footer class="viewer-actions">
+      <button class="act" id="btnViewerSave"><svg><use href="#i-save"/></svg>Lưu về máy</button>
+      <button class="act" id="btnViewerShare"><svg><use href="#i-share"/></svg>Chia sẻ</button>
+      <button class="act danger" id="btnViewerDelete"><svg><use href="#i-trash"/></svg>Xóa</button>
+    </footer>
+  </section>
+
+  <div id="toast" role="status" aria-live="polite"></div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
