@@ -66,7 +66,7 @@ export function createLocation(onChange) {
         const addr = shortAddress(await res.json());
         if (addr) {
           writeCache(key, addr);
-          if (state.lat === here.lat && state.lon === here.lon) { state.address = addr; addressPos = here; emit(); }
+          if (Number.isFinite(state.lat) && distanceM({ lat: state.lat, lon: state.lon }, here) < ADDRESS_STALE_M) { state.address = addr; addressPos = here; emit(); }
         }
       }
     } catch { /* offline: keep the previous address */ }
