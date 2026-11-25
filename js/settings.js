@@ -52,7 +52,7 @@ export function defaults() {
     customAddressText: '',
     show: {
       date: true, weekday: true, address: true, coords: true, altitude: false, accuracy: false,
-      weather: true, project: true, author: true, note: true, code: true, brand: true,
+      weather: true, project: true, author: true, note: true, code: false, brand: false,
     },
     autoSave: true,
     quality: 0.92,
@@ -61,6 +61,7 @@ export function defaults() {
     timer: 0,
     facing: 'environment',
     mirrorFront: true,
+    v: 2,
   };
 }
 
@@ -77,7 +78,10 @@ export function merge(base, saved) {
 
 export function load() {
   try {
-    return merge(defaults(), JSON.parse(localStorage.getItem(KEY)));
+    const saved = JSON.parse(localStorage.getItem(KEY));
+    const out = merge(defaults(), saved);
+    if (saved && !(saved.v >= 2)) out.show = { ...out.show, brand: false, code: false };
+    return out;
   } catch {
     return defaults();
   }
